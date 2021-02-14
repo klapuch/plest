@@ -73,10 +73,10 @@ BEGIN
       MESSAGE = 'EXCEPTION WAS NOT THROWN',
       HINT = format('EXPECTED EXCEPTION WAS "%s"', expected);
     EXCEPTION WHEN OTHERS THEN
-    IF (expected.message IS NOT NULL AND expected.message != SQLERRM) THEN
+    IF expected.message IS NOT NULL AND expected.message != SQLERRM THEN
       RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH MESSAGE "%s", BUT GIVEN "%s"', expected.message, SQLERRM);
     END IF;
-    IF (expected.state IS NOT NULL AND expected.state != SQLSTATE) THEN
+    IF expected.state IS NOT NULL AND expected.state != SQLSTATE THEN
       RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH SQLSTATE "%s", BUT GIVEN "%s"', expected.state, SQLSTATE);
     END IF;
 END
