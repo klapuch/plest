@@ -1,19 +1,21 @@
 CREATE SCHEMA IF NOT EXISTS tests;
 CREATE SCHEMA IF NOT EXISTS assert;
 
+
 CREATE FUNCTION assert.same(expected anyelement, actual anyelement) RETURNS void AS $BODY$
 BEGIN
   IF actual IS DISTINCT FROM expected THEN
     RAISE EXCEPTION USING
       MESSAGE = format(
         'Expected %s, actual %s',
-        COALESCE(expected::text, 'NULL'),
-        COALESCE(actual::text, 'NULL')
+        coalesce(expected::text, 'NULL'),
+        coalesce(actual::text, 'NULL')
       );
   END IF;
 END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 CREATE FUNCTION assert.not_same(expected anyelement, actual anyelement) RETURNS void AS $BODY$
 BEGIN
@@ -21,13 +23,14 @@ BEGIN
     RAISE EXCEPTION USING
       MESSAGE = format(
         'Expected %s, actual %s',
-        COALESCE(expected::text, 'NULL'),
-        COALESCE(actual::text, 'NULL')
+        coalesce(expected::text, 'NULL'),
+        coalesce(actual::text, 'NULL')
       );
   END IF;
 END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 CREATE FUNCTION assert.true(actual anyelement) RETURNS void AS $BODY$
 BEGIN
@@ -36,12 +39,14 @@ END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
 
+
 CREATE FUNCTION assert.false(actual anyelement) RETURNS void AS $BODY$
 BEGIN
   PERFORM assert.same(FALSE, actual);
 END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 CREATE FUNCTION assert.null(actual anyelement) RETURNS void AS $BODY$
 BEGIN
@@ -50,12 +55,14 @@ END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
 
+
 CREATE FUNCTION assert.not_null(actual anyelement) RETURNS void AS $BODY$
 BEGIN
   PERFORM assert.not_same(NULL, actual);
 END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 CREATE TYPE error AS (message text, state text);
 CREATE FUNCTION assert.throws(query text, expected error) RETURNS void AS $BODY$
@@ -67,10 +74,10 @@ BEGIN
       HINT = format('EXPECTED EXCEPTION WAS "%s"', expected);
     EXCEPTION WHEN OTHERS THEN
     IF (expected.message IS NOT NULL AND expected.message != SQLERRM) THEN
-        RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH MESSAGE "%s", BUT GIVEN "%s"', expected.message, SQLERRM);
+      RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH MESSAGE "%s", BUT GIVEN "%s"', expected.message, SQLERRM);
     END IF;
     IF (expected.state IS NOT NULL AND expected.state != SQLSTATE) THEN
-        RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH SQLSTATE "%s", BUT GIVEN "%s"', expected.state, SQLSTATE);
+      RAISE EXCEPTION USING MESSAGE = format('EXPECTED EXCEPTION WITH SQLSTATE "%s", BUT GIVEN "%s"', expected.state, SQLSTATE);
     END IF;
 END
 $BODY$
